@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Details - TN-WBAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <style>
+        :root {
+            --primary: #0F4C75;
+            --secondary: #3282B8;
+            --accent: #BBE1FA;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+        }
+
+        .navbar {
+            background: var(--primary) !important;
+        }
+
+        .complaint-detail {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 40px;
+            margin-top: 30px;
+        }
+
+        .complaint-title {
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-pending { background: var(--danger); color: white; }
+        .status-in-progress { background: var(--warning); color: var(--dark); }
+        .status-resolved { background: var(--success); color: white; }
+        .status-rejected { background: var(--secondary); color: white; }
+
+        .complaint-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-section {
+            background: var(--accent);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .map-container {
+            height: 400px;
+            background: #e9ecef;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #mapbox-detail-map {
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .btn-back {
+            background: var(--secondary);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-weight: 600;
+        }
+
+        .btn-back:hover {
+            background: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .complaint-detail {
+                padding: 20px;
+            }
+
+            .complaint-title {
+                font-size: 2rem;
+            }
+
+            /* Mobile Navigation */
+            .mobile-nav {
+                display: block;
+            }
+
+            .navbar {
+                display: none;
+            }
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 10px 0;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mobile-nav .nav-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .mobile-nav .nav-link {
+            color: var(--primary);
+            font-size: 0.8rem;
+            padding: 5px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .mobile-nav .nav-link i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        .mobile-nav .nav-link.active {
+            color: var(--secondary);
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-water me-2"></i>
+                TN-WBAMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report.html">Report Encroachment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="complaints.html">View Complaints</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">Map View</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.html">Authority Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="complaint-detail">
+            <!-- Back Button -->
+            <div class="mb-4">
+                <button class="btn btn-back" onclick="goBack()">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Complaints
+                </button>
+            </div>
+
+            <!-- Complaint Title and Status -->
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <h1 class="complaint-title" id="complaintTitle">Loading...</h1>
+                <span class="status-badge" id="complaintStatus"></span>
+            </div>
+
+            <!-- Complaint Image -->
+            <div id="imageContainer">
+                <!-- Image will be loaded here -->
+            </div>
+
+            <!-- Complaint Description -->
+            <div class="info-section">
+                <h4 class="mb-3">
+                    <i class="fas fa-file-alt me-2"></i>Description
+                </h4>
+                <p id="complaintDescription">Loading...</p>
+            </div>
+
+            <!-- Complaint Details -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h5 class="mb-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>Location Details
+                        </h5>
+                        <div class="mb-2">
+                            <span class="info-label">District:</span>
+                            <span id="complaintDistrict">Loading...</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="info-label">Location:</span>
+                            <span id="complaintLocation">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h5 class="mb-3">
+                            <i class="fas fa-calendar-alt me-2"></i>Timeline
+                        </h5>
+                        <div class="mb-2">
+                            <span class="info-label">Reported On:</span>
+                            <span id="complaintDate">Loading...</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="info-label">Last Updated:</span>
+                            <span id="complaintUpdated">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Section -->
+            <div class="info-section">
+                <h4 class="mb-3">
+                    <i class="fas fa-map-marked-alt me-2"></i>Location Map
+                </h4>
+                <div class="map-container">
+                    <div id="mapbox-detail-map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        // Leaflet initialization (NO API KEY NEEDED)
+        let detailMap;
+        
+        // Get complaint ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const complaintId = urlParams.get('id');
+
+        if (!complaintId) {
+            alert('No complaint ID provided');
+            window.location.href = 'complaints.html';
+        }
+
+        // Load complaint details
+        async function loadComplaintDetails() {
+            try {
+                const response = await fetch('/api/complaints');
+                const complaints = await response.json();
+                const complaint = complaints.find(c => c._id === complaintId);
+
+                if (!complaint) {
+                    alert('Complaint not found');
+                    window.location.href = 'complaints.html';
+                    return;
+                }
+
+                // Update page content
+                document.getElementById('complaintTitle').textContent = complaint.title;
+                document.getElementById('complaintDescription').textContent = complaint.description || 'No description provided';
+                document.getElementById('complaintDistrict').textContent = complaint.district || 'N/A';
+                document.getElementById('complaintLocation').textContent = complaint.location || (complaint.latitude && complaint.longitude ? `Lat: ${complaint.latitude.toFixed(6)}, Lng: ${complaint.longitude.toFixed(6)}` : 'N/A');
+                document.getElementById('complaintDate').textContent = new Date(complaint.createdAt).toLocaleDateString();
+                document.getElementById('complaintUpdated').textContent = new Date(complaint.createdAt).toLocaleDateString();
+
+                // Status badge
+                const statusElement = document.getElementById('complaintStatus');
+                const statusClass = complaint.status.toLowerCase().replace(' ', '-');
+                statusElement.textContent = complaint.status;
+                statusElement.className = `status-badge status-${statusClass}`;
+
+                // Image
+                const imageContainer = document.getElementById('imageContainer');
+                if (complaint.imageUrl) {
+                    imageContainer.innerHTML = `<img src="${complaint.imageUrl}" alt="Complaint Evidence" class="complaint-image">`;
+                } else {
+                    imageContainer.innerHTML = `
+                        <div class="text-center py-5 bg-light rounded">
+                            <i class="fas fa-image fa-4x text-muted mb-3"></i>
+                            <h5>No Image Available</h5>
+                            <p class="text-muted">No photo evidence was provided for this complaint</p>
+                        </div>
+                    `;
+                }
+
+                // Initialize map and display location
+                if (complaint.latitude && complaint.longitude) {
+                    initializeDetailMap(complaint.latitude, complaint.longitude, complaint.title);
+                } else {
+                    // If no coordinates, show placeholder and center on Tamil Nadu
+                    initializeDetailMap(11.1271, 78.6569, 'Location not available');
+                }
+
+            } catch (error) {
+                console.error('Error loading complaint details:', error);
+                alert('Error loading complaint details');
+            }
+        }
+
+        function initializeDetailMap(latitude, longitude, title) {
+            // Initialize Leaflet map (NO API KEY NEEDED)
+            detailMap = L.map('mapbox-detail-map').setView([latitude, longitude], 13);
+            
+            // Add OpenStreetMap tiles (free)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(detailMap);
+            
+            // Add marker for complaint location with address lookup
+            getAddressForMarker(latitude, longitude, title);
+        }
+        
+        // Get address and display marker
+        async function getAddressForMarker(latitude, longitude, title) {
+            let addressDisplay = `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
+            
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                const data = await response.json();
+                const address = data.address;
+                
+                // Build a nice address display
+                let location = `${address.road || address.village || address.city_district || ''}, ${address.city || address.town || ''}, ${address.state || ''} ${address.postcode || ''}`.trim();
+                
+                if (location && location !== ',') {
+                    addressDisplay = location;
+                }
+            } catch (error) {
+                console.error('Error getting address:', error);
+            }
+            
+            // Add marker with address info
+            L.marker([latitude, longitude])
+                .bindPopup(`<b>${title}</b><br><small>${addressDisplay}</small><br>Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`)
+                .addTo(detailMap)
+                .openPopup();
+        }
+
+        function goBack() {
+            window.location.href = 'complaints.html';
+        }
+
+        // Load complaint details on page load
+        loadComplaintDetails();
+    </script>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="report.html" class="nav-link">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Report</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="complaints.html" class="nav-link active">
+                        <i class="fas fa-list"></i>
+                        <span>Complaints</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="map.html" class="nav-link">
+                        <i class="fas fa-map"></i>
+                        <span>Map</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="admin.html" class="nav-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

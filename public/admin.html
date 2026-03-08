@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authority Dashboard - TN-WBAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0F4C75;
+            --secondary: #3282B8;
+            --accent: #BBE1FA;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+        }
+
+        .navbar {
+            background: var(--primary) !important;
+        }
+
+        .dashboard-cards {
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .card-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .card-title {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .table-responsive {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .table tbody tr:hover {
+            background: var(--accent);
+        }
+
+        .status-select {
+            border: none;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+
+        .btn-update {
+            background: var(--secondary);
+            border: none;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+
+        .btn-update:hover {
+            background: var(--primary);
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        .btn-login {
+            background: var(--secondary);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+
+        .btn-login:hover {
+            background: var(--primary);
+        }
+
+        .btn-logout {
+            background: var(--danger);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-card {
+                margin-bottom: 20px;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+
+            /* Mobile Navigation */
+            .mobile-nav {
+                display: block;
+            }
+
+            .navbar {
+                display: none;
+            }
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 10px 0;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mobile-nav .nav-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .mobile-nav .nav-link {
+            color: var(--primary);
+            font-size: 0.8rem;
+            padding: 5px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .mobile-nav .nav-link i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        .mobile-nav .nav-link.active {
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-water me-2"></i>
+                TN-WBAMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report.html">Report Encroachment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="complaints.html">View Complaints</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">Map View</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="admin.html">Authority Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="container">
+        <div class="login-form">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-shield-alt text-primary me-2"></i>
+                Authority Login
+            </h2>
+            <form id="adminLoginForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-login w-100">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminPanel" class="d-none">
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                    Authority Dashboard
+                </h1>
+                <button id="logoutBtn" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </button>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="row dashboard-cards">
+                <div class="col-md-3 col-sm-6">
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="card-number" id="totalComplaints">0</div>
+                        <div class="card-title">Total Complaints</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="card-number" id="pendingCases">0</div>
+                        <div class="card-title">Pending Cases</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="card-number" id="inProgressCases">0</div>
+                        <div class="card-title">In Progress</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="dashboard-card">
+                        <div class="card-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="card-number" id="resolvedCases">0</div>
+                        <div class="card-title">Resolved Cases</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaints Management Table -->
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>District</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsTable">
+                        <!-- Complaints will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const loginForm = document.getElementById('adminLoginForm');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginFormDiv = document.getElementById('loginForm');
+        const complaintsTable = document.getElementById('complaintsTable');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Check if logged in
+        if (localStorage.getItem('adminLoggedIn')) {
+            showAdminPanel();
+        }
+
+        // Login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username === 'admin' && password === 'admin123') {
+                localStorage.setItem('adminLoggedIn', 'true');
+                showAdminPanel();
+            } else {
+                alert('Invalid credentials');
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('adminLoggedIn');
+            showLoginForm();
+        });
+
+        function showAdminPanel() {
+            loginFormDiv.classList.add('d-none');
+            adminPanel.classList.remove('d-none');
+            loadDashboard();
+        }
+
+        function showLoginForm() {
+            adminPanel.classList.add('d-none');
+            loginFormDiv.classList.remove('d-none');
+        }
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/complaints');
+                const complaints = await response.json();
+
+                const total = complaints.length;
+                const pending = complaints.filter(c => c.status === 'Pending').length;
+                const inProgress = complaints.filter(c => c.status === 'In Progress').length;
+                const resolved = complaints.filter(c => c.status === 'Resolved').length;
+
+                document.getElementById('totalComplaints').textContent = total;
+                document.getElementById('pendingCases').textContent = pending;
+                document.getElementById('inProgressCases').textContent = inProgress;
+                document.getElementById('resolvedCases').textContent = resolved;
+
+                renderComplaintsTable(complaints);
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Render complaints table
+        function renderComplaintsTable(complaints) {
+            complaintsTable.innerHTML = '';
+            complaints.forEach(complaint => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${complaint.title}</td>
+                    <td>${complaint.district || 'N/A'}</td>
+                    <td>
+                        <span class="badge bg-${complaint.status === 'Resolved' ? 'success' : complaint.status === 'Pending' ? 'danger' : complaint.status === 'In Progress' ? 'warning' : 'secondary'}">
+                            ${complaint.status}
+                        </span>
+                    </td>
+                    <td>${new Date(complaint.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <select class="form-select status-select" data-id="${complaint._id}">
+                            <option value="Pending" ${complaint.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="In Progress" ${complaint.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Resolved" ${complaint.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                            <option value="Rejected" ${complaint.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                        </select>
+                    </td>
+                `;
+                complaintsTable.appendChild(row);
+
+                // Add event listener to status select
+                row.querySelector('.status-select').addEventListener('change', async (e) => {
+                    const newStatus = e.target.value;
+                    const id = e.target.getAttribute('data-id');
+                    try {
+                        const response = await fetch(`/api/complaints/${id}/status`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        if (response.ok) {
+                            alert('Status updated successfully');
+                            loadDashboard();
+                        } else {
+                            alert('Error updating status');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error updating status');
+                    }
+                });
+            });
+        }
+
+        // Listen for new complaints
+        socket.on('newComplaint', () => {
+            if (localStorage.getItem('adminLoggedIn')) {
+                loadDashboard();
+            }
+        });
+
+        // Listen for status updates
+        socket.on('statusUpdate', () => {
+            if (localStorage.getItem('adminLoggedIn')) {
+                loadDashboard();
+            }
+        });
+    </script>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="report.html" class="nav-link">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Report</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="complaints.html" class="nav-link">
+                        <i class="fas fa-list"></i>
+                        <span>Complaints</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="map.html" class="nav-link">
+                        <i class="fas fa-map"></i>
+                        <span>Map</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="admin.html" class="nav-link active">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

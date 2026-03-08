@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Map - TN-WBAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0F4C75;
+            --secondary: #3282B8;
+            --accent: #BBE1FA;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+        }
+
+        .navbar {
+            background: var(--primary) !important;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .map-container {
+            height: calc(100vh - 200px);
+            background: #e9ecef;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            flex-direction: column;
+        }
+
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .complaint-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .complaint-marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .complaint-popup {
+            position: absolute;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            max-width: 300px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        .btn-view-details {
+            background: var(--secondary);
+            border: none;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .btn-view-details:hover {
+            background: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .map-container {
+                height: calc(100vh - 250px);
+            }
+
+            .legend {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 20px;
+            }
+
+            /* Mobile Navigation */
+            .mobile-nav {
+                display: block;
+            }
+
+            .navbar {
+                display: none;
+            }
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 10px 0;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mobile-nav .nav-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .mobile-nav .nav-link {
+            color: var(--primary);
+            font-size: 0.8rem;
+            padding: 5px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .mobile-nav .nav-link i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        .mobile-nav .nav-link.active {
+            color: var(--secondary);
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-water me-2"></i>
+                TN-WBAMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report.html">Report Encroachment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="complaints.html">View Complaints</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="map.html">Map View</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.html">Authority Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <select class="form-select" id="districtFilter">
+                        <option value="">All Districts</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Coimbatore">Coimbatore</option>
+                        <option value="Madurai">Madurai</option>
+                        <option value="Tiruchirappalli">Tiruchirappalli</option>
+                        <option value="Salem">Salem</option>
+                        <option value="Tirunelveli">Tirunelveli</option>
+                        <option value="Tiruppur">Tiruppur</option>
+                        <option value="Vellore">Vellore</option>
+                        <option value="Erode">Erode</option>
+                        <!-- Add more districts as needed -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary" id="filterBtn">
+                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    </button>
+                </div>
+                <div class="col-md-3 text-end">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Click markers for details
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div class="map-placeholder">
+                <i class="fas fa-map-marked-alt fa-5x mb-4 text-muted"></i>
+                <h3>Interactive Complaint Map</h3>
+                <p class="text-muted mb-4">Visual representation of all reported encroachments</p>
+                <div class="text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Map integration requires Google Maps API key for full functionality
+                    </small>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend d-none d-md-block">
+                <h6 class="mb-3">Status Legend</h6>
+                <div class="legend-item">
+                    <div class="legend-dot bg-danger"></div>
+                    <span>Pending</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot bg-warning"></div>
+                    <span>In Progress</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot bg-success"></div>
+                    <span>Resolved</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--secondary);"></div>
+                    <span>Rejected</span>
+                </div>
+            </div>
+
+            <!-- Complaint Markers Container -->
+            <div id="markersContainer"></div>
+
+            <!-- Popup -->
+            <div id="complaintPopup" class="complaint-popup">
+                <button class="popup-close" onclick="closePopup()">&times;</button>
+                <h6 id="popupTitle"></h6>
+                <p id="popupDescription" class="mb-2"></p>
+                <small class="text-muted">
+                    <strong>District:</strong> <span id="popupDistrict"></span><br>
+                    <strong>Status:</strong> <span id="popupStatus"></span><br>
+                    <strong>Reported:</strong> <span id="popupDate"></span>
+                </small>
+                <button class="btn btn-view-details" onclick="viewComplaintDetails()">
+                    <i class="fas fa-eye me-1"></i>View Full Details
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const markersContainer = document.getElementById('markersContainer');
+        const complaintPopup = document.getElementById('complaintPopup');
+        const districtFilter = document.getElementById('districtFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const filterBtn = document.getElementById('filterBtn');
+
+        let allComplaints = [];
+        let selectedComplaint = null;
+
+        // Load complaints
+        async function loadComplaints() {
+            try {
+                const response = await fetch('/api/complaints');
+                allComplaints = await response.json();
+                renderMarkers(allComplaints);
+            } catch (error) {
+                console.error('Error loading complaints:', error);
+            }
+        }
+
+        // Filter complaints
+        function filterComplaints() {
+            let filtered = allComplaints;
+
+            const district = districtFilter.value;
+            const status = statusFilter.value;
+
+            if (district) {
+                filtered = filtered.filter(c => c.district === district);
+            }
+
+            if (status) {
+                filtered = filtered.filter(c => c.status === status);
+            }
+
+            renderMarkers(filtered);
+        }
+
+        // Render markers on map
+        function renderMarkers(complaints) {
+            markersContainer.innerHTML = '';
+
+            complaints.forEach((complaint, index) => {
+                // Generate random positions for demo (in real app, use actual coordinates)
+                const left = Math.random() * 80 + 10; // 10% to 90%
+                const top = Math.random() * 70 + 15; // 15% to 85%
+
+                const marker = document.createElement('div');
+                marker.className = 'complaint-marker';
+                marker.style.left = left + '%';
+                marker.style.top = top + '%';
+
+                // Set color based on status
+                if (complaint.status === 'Resolved') {
+                    marker.style.background = 'var(--success)';
+                } else if (complaint.status === 'In Progress') {
+                    marker.style.background = 'var(--warning)';
+                } else if (complaint.status === 'Rejected') {
+                    marker.style.background = 'var(--secondary)';
+                } else {
+                    marker.style.background = 'var(--danger)';
+                }
+
+                marker.textContent = (index + 1).toString();
+                marker.onclick = () => showComplaintPopup(complaint, left, top);
+
+                markersContainer.appendChild(marker);
+            });
+        }
+
+        // Show complaint popup
+        function showComplaintPopup(complaint, left, top) {
+            selectedComplaint = complaint;
+
+            document.getElementById('popupTitle').textContent = complaint.title;
+            document.getElementById('popupDescription').textContent = complaint.description || 'No description provided';
+            document.getElementById('popupDistrict').textContent = complaint.district || 'N/A';
+            document.getElementById('popupStatus').textContent = complaint.status;
+            document.getElementById('popupDate').textContent = new Date(complaint.createdAt).toLocaleDateString();
+
+            complaintPopup.style.left = (left + 5) + '%';
+            complaintPopup.style.top = (top - 10) + '%';
+            complaintPopup.style.display = 'block';
+        }
+
+        // Close popup
+        function closePopup() {
+            complaintPopup.style.display = 'none';
+            selectedComplaint = null;
+        }
+
+        // View complaint details
+        function viewComplaintDetails() {
+            if (selectedComplaint) {
+                window.location.href = `complaint-detail.html?id=${selectedComplaint._id}`;
+            }
+        }
+
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!complaintPopup.contains(e.target) && !e.target.classList.contains('complaint-marker')) {
+                closePopup();
+            }
+        });
+
+        // Event listeners
+        filterBtn.addEventListener('click', filterComplaints);
+        districtFilter.addEventListener('change', filterComplaints);
+        statusFilter.addEventListener('change', filterComplaints);
+
+        // Listen for new complaints
+        socket.on('newComplaint', () => {
+            loadComplaints();
+        });
+
+        // Listen for status updates
+        socket.on('statusUpdate', (data) => {
+            loadComplaints();
+        });
+
+        // Load complaints on page load
+        loadComplaints();
+    </script>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="report.html" class="nav-link">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Report</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="complaints.html" class="nav-link">
+                        <i class="fas fa-list"></i>
+                        <span>Complaints</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="map.html" class="nav-link active">
+                        <i class="fas fa-map"></i>
+                        <span>Map</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="admin.html" class="nav-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

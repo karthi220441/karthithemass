@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TN-WBAMS - Tamil Nadu Water Body & Aquatic Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0F4C75;
+            --secondary: #3282B8;
+            --accent: #BBE1FA;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+        }
+
+        .navbar {
+            background: var(--primary) !important;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 80px 0;
+            margin-top: -20px;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .stats-section {
+            background: white;
+            padding: 60px 0;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-title {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .features-section {
+            padding: 60px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .btn-primary-custom {
+            background: var(--secondary);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .map-preview {
+            background: var(--accent);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 10px 0;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mobile-nav.show {
+            display: block;
+        }
+
+        .mobile-nav .nav-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .mobile-nav .nav-link {
+            color: var(--primary);
+            font-size: 0.8rem;
+            padding: 5px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .mobile-nav .nav-link i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        .mobile-nav .nav-link.active {
+            color: var(--secondary);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .stat-card {
+                margin-bottom: 20px;
+            }
+
+            .mobile-nav {
+                display: block;
+            }
+
+            .navbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Desktop Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-water me-2"></i>
+                TN-WBAMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report.html">Report Encroachment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="complaints.html">View Complaints</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">Map View</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.html">Authority Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="hero-title">Tamil Nadu Water Body & Aquatic Management System</h1>
+                    <p class="hero-subtitle">Protecting and preserving our precious water resources through community participation and efficient management</p>
+                    <a href="report.html" class="btn btn-primary-custom">
+                        <i class="fas fa-plus-circle me-2"></i>Report Encroachment
+                    </a>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="fas fa-water" style="font-size: 8rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="mb-4">System Overview</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalComplaints">0</div>
+                        <div class="stat-title">Total Complaints</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeComplaints">0</div>
+                        <div class="stat-title">Active Cases</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="stat-number" id="resolvedComplaints">0</div>
+                        <div class="stat-title">Resolved Cases</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card">
+                        <div class="stat-number" id="districtsCovered">13</div>
+                        <div class="stat-title">Districts Covered</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2>Key Features</h2>
+                    <p class="text-muted">Comprehensive tools for effective water body management</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h5>Report Encroachments</h5>
+                        <p>Easy-to-use interface for citizens to report water body encroachments with photos and location details</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h5>Interactive Maps</h5>
+                        <p>Visual representation of all reported complaints with real-time status updates</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5>Real-time Tracking</h5>
+                        <p>Monitor complaint status and resolution progress with live updates</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Preview Section -->
+    <section class="map-preview">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h3>Interactive Map View</h3>
+                    <p>Explore all reported encroachments across Tamil Nadu with our comprehensive map interface</p>
+                    <a href="map.html" class="btn btn-primary-custom">
+                        <i class="fas fa-map me-2"></i>View Full Map
+                    </a>
+                </div>
+                <div class="col-lg-6">
+                    <i class="fas fa-map-marked-alt" style="font-size: 6rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2">
+                    <a href="index.html" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="report.html" class="nav-link">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Report</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="complaints.html" class="nav-link">
+                        <i class="fas fa-list"></i>
+                        <span>Complaints</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="map.html" class="nav-link">
+                        <i class="fas fa-map"></i>
+                        <span>Map</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="admin.html" class="nav-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/complaints');
+                const complaints = await response.json();
+
+                document.getElementById('totalComplaints').textContent = complaints.length;
+                document.getElementById('activeComplaints').textContent = complaints.filter(c => c.status !== 'Resolved').length;
+                document.getElementById('resolvedComplaints').textContent = complaints.filter(c => c.status === 'Resolved').length;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load stats on page load
+        loadStats();
+
+        // Listen for real-time updates
+        socket.on('newComplaint', loadStats);
+        socket.on('statusUpdate', loadStats);
+    </script>
+                const response = await fetch('/api/complaints', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    alert('Complaint submitted successfully!');
+                    form.reset();
+                    // loadComplaints(); // Not needed since real-time
+                } else {
+                    alert('Error submitting complaint');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting complaint');
+            }
+        });
+
+        // Load and display complaints
+        async function loadComplaints() {
+            try {
+                const response = await fetch('/api/complaints');
+                const complaints = await response.json();
+                complaintsList.innerHTML = '';
+                complaints.forEach(complaint => {
+                    addComplaintToList(complaint);
+                });
+            } catch (error) {
+                console.error('Error loading complaints:', error);
+            }
+        }
+
+        function addComplaintToList(complaint) {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 mb-3';
+            col.setAttribute('data-id', complaint._id);
+            col.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">${complaint.title}</h5>
+                        <p class="card-text">${complaint.description || ''}</p>
+                        <p class="card-text"><small class="text-muted">District: ${complaint.district || ''} | Location: ${complaint.location || ''}</small></p>
+                        <p class="card-text"><small class="text-muted">Status: <span class="status-text">${complaint.status}</span> | Created: ${new Date(complaint.createdAt).toLocaleDateString()}</small></p>
+                        ${complaint.imageUrl ? `<img src="${complaint.imageUrl}" class="img-fluid mt-2" alt="Complaint Image">` : ''}
+                    </div>
+                </div>
+            `;
+            complaintsList.appendChild(col);
+        }
+
+        function updateComplaintStatus(id, status) {
+            const col = document.querySelector(`[data-id="${id}"]`);
+            if (col) {
+                const statusText = col.querySelector('.status-text');
+                if (statusText) {
+                    statusText.textContent = status;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Complaints - TN-WBAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0F4C75;
+            --secondary: #3282B8;
+            --accent: #BBE1FA;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+        }
+
+        .navbar {
+            background: var(--primary) !important;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .complaint-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .complaint-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .complaint-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending { background: var(--danger); color: white; }
+        .status-in-progress { background: var(--warning); color: var(--dark); }
+        .status-resolved { background: var(--success); color: white; }
+        .status-rejected { background: var(--secondary); color: white; }
+
+        .table-responsive {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .table tbody tr:hover {
+            background: var(--accent);
+        }
+
+        .btn-view {
+            background: var(--secondary);
+            border: none;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+
+        .btn-view:hover {
+            background: var(--primary);
+        }
+
+        .view-toggle {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .toggle-btn {
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .toggle-btn:not(.active) {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        @media (max-width: 768px) {
+            .complaint-card .row {
+                text-align: center;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+
+            /* Mobile Navigation */
+            .mobile-nav {
+                display: block;
+            }
+
+            .navbar {
+                display: none;
+            }
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 10px 0;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mobile-nav .nav-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .mobile-nav .nav-link {
+            color: var(--primary);
+            font-size: 0.8rem;
+            padding: 5px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .mobile-nav .nav-link i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        .mobile-nav .nav-link.active {
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-water me-2"></i>
+                TN-WBAMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report.html">Report Encroachment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="complaints.html">View Complaints</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">Map View</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.html">Authority Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="view-toggle">
+            <div class="d-flex justify-content-center gap-3">
+                <button class="toggle-btn active" id="cardViewBtn">
+                    <i class="fas fa-th-large me-2"></i>Card View
+                </button>
+                <button class="toggle-btn" id="tableViewBtn">
+                    <i class="fas fa-table me-2"></i>Table View
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select class="form-select" id="districtFilter">
+                        <option value="">All Districts</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Coimbatore">Coimbatore</option>
+                        <option value="Madurai">Madurai</option>
+                        <option value="Tiruchirappalli">Tiruchirappalli</option>
+                        <option value="Salem">Salem</option>
+                        <option value="Tirunelveli">Tirunelveli</option>
+                        <option value="Tiruppur">Tiruppur</option>
+                        <option value="Vellore">Vellore</option>
+                        <option value="Erode">Erode</option>
+                        <!-- Add more districts as needed -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="dateFilter">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100" id="searchBtn">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card View -->
+        <div id="cardView" class="row">
+            <!-- Complaints will be loaded here -->
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="d-none">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>District</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsTable">
+                        <!-- Table rows will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const cardView = document.getElementById('cardView');
+        const tableView = document.getElementById('tableView');
+        const cardViewBtn = document.getElementById('cardViewBtn');
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const districtFilter = document.getElementById('districtFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const searchBtn = document.getElementById('searchBtn');
+
+        let allComplaints = [];
+
+        // View toggle
+        cardViewBtn.addEventListener('click', () => {
+            cardView.classList.remove('d-none');
+            tableView.classList.add('d-none');
+            cardViewBtn.classList.add('active');
+            tableViewBtn.classList.remove('active');
+        });
+
+        tableViewBtn.addEventListener('click', () => {
+            tableView.classList.remove('d-none');
+            cardView.classList.add('d-none');
+            tableViewBtn.classList.add('active');
+            cardViewBtn.classList.remove('active');
+        });
+
+        // Load complaints
+        async function loadComplaints() {
+            try {
+                const response = await fetch('/api/complaints');
+                allComplaints = await response.json();
+                renderComplaints(allComplaints);
+            } catch (error) {
+                console.error('Error loading complaints:', error);
+            }
+        }
+
+        // Filter complaints
+        function filterComplaints() {
+            let filtered = allComplaints;
+
+            const district = districtFilter.value;
+            const status = statusFilter.value;
+            const date = dateFilter.value;
+
+            if (district) {
+                filtered = filtered.filter(c => c.district === district);
+            }
+
+            if (status) {
+                filtered = filtered.filter(c => c.status === status);
+            }
+
+            if (date) {
+                filtered = filtered.filter(c => {
+                    const complaintDate = new Date(c.createdAt).toISOString().split('T')[0];
+                    return complaintDate === date;
+                });
+            }
+
+            renderComplaints(filtered);
+        }
+
+        // Render complaints
+        function renderComplaints(complaints) {
+            // Card view
+            cardView.innerHTML = '';
+            complaints.forEach(complaint => {
+                const statusClass = complaint.status.toLowerCase().replace(' ', '-');
+                const col = document.createElement('div');
+                col.className = 'col-lg-4 col-md-6';
+                col.innerHTML = `
+                    <div class="complaint-card">
+                        ${complaint.imageUrl ? `<img src="${complaint.imageUrl}" class="complaint-image" alt="Complaint Image">` : '<div class="bg-light text-center py-5"><i class="fas fa-image fa-3x text-muted"></i></div>'}
+                        <div class="position-relative">
+                            <span class="status-badge status-${statusClass}">${complaint.status}</span>
+                        </div>
+                        <div class="p-3">
+                            <h5 class="mb-2">${complaint.title}</h5>
+                            <p class="text-muted mb-2">${complaint.description ? complaint.description.substring(0, 100) + '...' : ''}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>${complaint.district || 'N/A'}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>${new Date(complaint.createdAt).toLocaleDateString()}
+                                </small>
+                            </div>
+                            <button class="btn btn-view mt-3" onclick="viewComplaint('${complaint._id}')">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+                cardView.appendChild(col);
+            });
+
+            // Table view
+            const tbody = document.getElementById('complaintsTable');
+            tbody.innerHTML = '';
+            complaints.forEach(complaint => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${complaint.title}</td>
+                    <td>${complaint.district || 'N/A'}</td>
+                    <td>${new Date(complaint.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <span class="badge bg-${complaint.status === 'Resolved' ? 'success' : complaint.status === 'Pending' ? 'danger' : complaint.status === 'In Progress' ? 'warning' : 'secondary'}">
+                            ${complaint.status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-view" onclick="viewComplaint('${complaint._id}')">
+                            <i class="fas fa-eye me-1"></i>View
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // View complaint details
+        function viewComplaint(id) {
+            window.location.href = `complaint-detail.html?id=${id}`;
+        }
+
+        // Event listeners
+        searchBtn.addEventListener('click', filterComplaints);
+        districtFilter.addEventListener('change', filterComplaints);
+        statusFilter.addEventListener('change', filterComplaints);
+        dateFilter.addEventListener('change', filterComplaints);
+
+        // Listen for new complaints
+        socket.on('newComplaint', () => {
+            loadComplaints();
+        });
+
+        // Load complaints on page load
+        loadComplaints();
+    </script>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="report.html" class="nav-link">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Report</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="complaints.html" class="nav-link active">
+                        <i class="fas fa-list"></i>
+                        <span>Complaints</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="map.html" class="nav-link">
+                        <i class="fas fa-map"></i>
+                        <span>Map</span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a href="admin.html" class="nav-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>
