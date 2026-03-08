@@ -7,67 +7,107 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <style>
         :root {
             --primary: #0F4C75;
             --secondary: #3282B8;
             --accent: #BBE1FA;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --light: #f8f9fa;
-            --dark: #212529;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1a202c;
+            --border: #e2e8f0;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
         }
 
         body {
             font-family: 'Poppins', sans-serif;
             background: var(--light);
+            color: var(--dark);
         }
 
         .navbar {
             background: var(--primary) !important;
+            box-shadow: var(--shadow-md);
+        }
+
+        .navbar-brand {
+            font-weight: 700 !important;
         }
 
         .filters-section {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--secondary);
+        }
+
+        .filters-section h5 {
+            font-weight: 700;
             margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .form-select, .form-control {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(50, 130, 184, 0.1);
         }
 
         .map-container {
-            height: calc(100vh - 200px);
-            background: #e9ecef;
-            border-radius: 15px;
+            height: calc(100vh - 250px);
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
             position: relative;
             overflow: hidden;
+            border: 1px solid var(--border);
         }
 
-        .map-placeholder {
+        #leaflet-map {
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark);
-            flex-direction: column;
+            width: 100%;
+            border-radius: 12px;
         }
 
+        /* Legend Styling */
         .legend {
             position: absolute;
             top: 20px;
             right: 20px;
             background: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-lg);
             z-index: 1000;
+            min-width: 250px;
+            border: 1px solid var(--border);
+        }
+
+        .legend h6 {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            padding: 8px 0;
         }
 
         .legend-item:last-child {
@@ -75,66 +115,72 @@
         }
 
         .legend-dot {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            margin-right: 8px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .complaint-marker {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            transition: transform 0.2s ease;
-        }
+        .legend-dot.pending { background: var(--danger); }
+        .legend-dot.progress { background: var(--warning); }
+        .legend-dot.resolved { background: var(--success); }
 
-        .complaint-marker:hover {
-            transform: translate(-50%, -50%) scale(1.2);
-        }
-
-        .complaint-popup {
-            position: absolute;
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            max-width: 300px;
-            z-index: 1001;
-            display: none;
-        }
-
-        .popup-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
+        .legend-label {
+            font-size: 0.9rem;
             color: var(--dark);
+            font-weight: 500;
+            flex: 1;
         }
 
-        .btn-view-details {
+        .legend-count {
+            background: var(--light);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .btn-apply {
             background: var(--secondary);
             border: none;
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 0.9rem;
-            margin-top: 10px;
+            border-radius: 8px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .btn-view-details:hover {
+        .btn-apply:hover {
             background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-bar {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .Leaflet-popup-content {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .leaflet-popup-tip {
+            display: none;
         }
 
         @media (max-width: 768px) {
@@ -231,11 +277,15 @@
         </div>
     </nav>
 
-    <div class="container-fluid mt-3">
+    <div class="container-fluid mt-4 mb-5">
         <!-- Filters -->
         <div class="filters-section">
-            <div class="row g-3 align-items-center">
+            <h5>
+                <i class="fas fa-filter me-2"></i>Filter Complaints
+            </h5>
+            <div class="row g-3 align-items-end">
                 <div class="col-md-3">
+                    <label class="form-label small text-muted">District</label>
                     <select class="form-select" id="districtFilter">
                         <option value="">All Districts</option>
                         <option value="Chennai">Chennai</option>
@@ -247,10 +297,10 @@
                         <option value="Tiruppur">Tiruppur</option>
                         <option value="Vellore">Vellore</option>
                         <option value="Erode">Erode</option>
-                        <!-- Add more districts as needed -->
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label small text-muted">Status</label>
                     <select class="form-select" id="statusFilter">
                         <option value="">All Status</option>
                         <option value="Pending">Pending</option>
@@ -260,44 +310,44 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <button class="btn btn-primary" id="filterBtn">
-                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    <button class="btn btn-apply w-100" id="filterBtn">
+                        <i class="fas fa-search me-2"></i>Apply Filters
                     </button>
                 </div>
                 <div class="col-md-3 text-end">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Click markers for details
-                    </small>
+                    <div class="info-bar">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Click markers for details</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Map Container -->
+        <!-- Map Container with Leaflet -->
         <div class="map-container">
-            <div class="map-placeholder">
-                <i class="fas fa-map-marked-alt fa-5x mb-4 text-muted"></i>
-                <h3>Interactive Complaint Map</h3>
-                <p class="text-muted mb-4">Visual representation of all reported encroachments</p>
-                <div class="text-center">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Map integration requires Google Maps API key for full functionality
-                    </small>
-                </div>
-            </div>
+            <div id="leaflet-map"></div>
 
             <!-- Legend -->
             <div class="legend d-none d-md-block">
-                <h6 class="mb-3">Status Legend</h6>
+                <h6>Status Legend</h6>
                 <div class="legend-item">
-                    <div class="legend-dot bg-danger"></div>
-                    <span>Pending</span>
+                    <div class="legend-dot pending"></div>
+                    <span class="legend-label">Pending/Reported</span>
+                    <span class="legend-count" id="countPending">0</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-dot bg-warning"></div>
-                    <span>In Progress</span>
+                    <div class="legend-dot progress"></div>
+                    <span class="legend-label">In Progress</span>
+                    <span class="legend-count" id="countProgress">0</span>
                 </div>
+                <div class="legend-item">
+                    <div class="legend-dot resolved"></div>
+                    <span class="legend-label">Resolved</span>
+                    <span class="legend-count" id="countResolved">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
                 <div class="legend-item">
                     <div class="legend-dot bg-success"></div>
                     <span>Resolved</span>

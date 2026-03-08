@@ -12,122 +12,313 @@
             --primary: #0F4C75;
             --secondary: #3282B8;
             --accent: #BBE1FA;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --light: #f8f9fa;
-            --dark: #212529;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1a202c;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
             background: var(--light);
+            color: var(--dark);
         }
 
         .navbar {
             background: var(--primary) !important;
+            box-shadow: var(--shadow-md);
+            padding: 1rem 0;
         }
 
+        .navbar-brand {
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+        }
+
+        /* Dashboard Hero Section */
         .hero-section {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            padding: 80px 0;
-            margin-top: -20px;
+            padding: 60px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
         }
 
         .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 30px;
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 25px;
+            line-height: 1.6;
         }
 
-        .stats-section {
+        .hero-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .hero-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .hero-stat-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary-custom {
             background: white;
-            padding: 60px 0;
-            margin: 40px 0;
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Modern Dashboard Stats Section */
+        .dashboard-stats {
+            padding: 40px 0;
+            margin: 20px 0;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
         .stat-card {
-            text-align: center;
+            background: white;
+            border-radius: 12px;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -50px;
+            width: 120px;
+            height: 120px;
+            background: rgba(15, 76, 117, 0.05);
+            border-radius: 50%;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
 
+        .stat-card.accent-1 {
+            border-left-color: var(--danger);
+        }
+
+        .stat-card.accent-2 {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.accent-3 {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.accent-4 {
+            border-left-color: var(--secondary);
+        }
+
+        .stat-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: var(--light);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .stat-card.accent-1 .stat-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .stat-card.accent-2 .stat-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .stat-card.accent-3 .stat-icon { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .stat-card.accent-4 .stat-icon { background: rgba(50, 130, 184, 0.1); color: var(--secondary); }
+
         .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 10px;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: var(--dark);
         }
 
         .stat-title {
-            color: var(--dark);
+            font-size: 0.95rem;
+            color: #64748b;
             font-weight: 500;
         }
 
+        .stat-trend {
+            font-size: 0.85rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+            color: var(--success);
+        }
+
+        .stat-trend.down {
+            color: var(--danger);
+        }
+
+        /* Features Section */
         .features-section {
             padding: 60px 0;
+            background: white;
+            border-radius: 15px;
+            margin: 40px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.05rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
         }
 
         .feature-card {
-            background: white;
+            background: var(--light);
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
             text-align: center;
             height: 100%;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            border-color: var(--secondary);
+            background: white;
+            box-shadow: var(--shadow-lg);
         }
 
         .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--primary);
-            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
         }
 
-        .btn-primary-custom {
-            background: var(--secondary);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
+        .feature-card h5 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--dark);
         }
 
-        .btn-primary-custom:hover {
-            background: var(--primary);
-            transform: translateY(-2px);
+        .feature-card p {
+            color: #64748b;
+            line-height: 1.6;
         }
 
+        /* Map Preview Section */
         .map-preview {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, rgba(187, 225, 250, 0.5) 100%);
             border-radius: 15px;
-            padding: 40px;
-            text-align: center;
+            padding: 50px 40px;
             margin: 40px 0;
+            border: 2px solid rgba(50, 130, 184, 0.2);
+        }
+
+        .map-preview h3 {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .map-preview p {
+            color: #5e9fb3;
+            margin-bottom: 25px;
         }
 
         /* Mobile Navigation */
@@ -230,53 +421,149 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="hero-title">Tamil Nadu Water Body & Aquatic Management System</h1>
-                    <p class="hero-subtitle">Protecting and preserving our precious water resources through community participation and efficient management</p>
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-water me-3"></i>TN-WBAMS Monitoring System
+                </h1>
+                <p class="hero-subtitle">Tamil Nadu Water Body Alert & Monitoring System - Protecting and preserving our precious water resources through community participation and efficient management</p>
+                <div class="d-flex gap-3 flex-wrap">
                     <a href="report.html" class="btn btn-primary-custom">
-                        <i class="fas fa-plus-circle me-2"></i>Report Encroachment
+                        <i class="fas fa-plus-circle"></i>Report Encroachment
+                    </a>
+                    <a href="map.html" class="btn btn-primary-custom" style="background: rgba(255,255,255,0.2); color: white;">
+                        <i class="fas fa-map-marked-alt"></i>View Live Map
                     </a>
                 </div>
-                <div class="col-lg-4 text-center">
-                    <i class="fas fa-water" style="font-size: 8rem; opacity: 0.3;"></i>
+                <div class="hero-stats mt-5">
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" id="heroTotal">0</span>
+                        <span class="hero-stat-label">Total Reports</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" id="heroPending">0</span>
+                        <span class="hero-stat-label">Pending</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" id="heroProgress">0</span>
+                        <span class="hero-stat-label">In Progress</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value" id="heroResolved">0</span>
+                        <span class="hero-stat-label">Resolved</span>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Statistics Section -->
-    <section class="stats-section">
+    <!-- Modern Dashboard Statistics Section -->
+    <section class="dashboard-stats">
         <div class="container">
-            <div class="row text-center mb-5">
-                <div class="col-12">
-                    <h2 class="mb-4">System Overview</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
+            <div class="section-title">System Status Dashboard</div>
+            <div class="section-subtitle">Real-time monitoring of water body encroachments across Tamil Nadu</div>
+            <div class="stat-grid">
+                <div class="stat-card accent-1">
+                    <div class="stat-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
                         <div class="stat-number" id="totalComplaints">0</div>
                         <div class="stat-title">Total Complaints</div>
+                        <div class="stat-trend">
+                            <i class="fas fa-arrow-up me-1"></i><span id="trendTotal">0% from last month</span>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
+
+                <div class="stat-card accent-2">
+                    <div class="stat-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-hourglass-start"></i>
+                        </div>
                         <div class="stat-number" id="activeComplaints">0</div>
-                        <div class="stat-title">Active Cases</div>
+                        <div class="stat-title">Pending Cases</div>
+                        <div class="stat-trend">
+                            Awaiting verification
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
+
+                <div class="stat-card accent-2">
+                    <div class="stat-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="stat-number" id="inProgressComplaints">0</div>
+                        <div class="stat-title">Under Investigation</div>
+                        <div class="stat-trend">
+                            Field inspections ongoing
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card accent-3">
+                    <div class="stat-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
                         <div class="stat-number" id="resolvedComplaints">0</div>
                         <div class="stat-title">Resolved Cases</div>
+                        <div class="stat-trend">
+                            <i class="fas fa-arrow-up me-1"></i><span id="trendResolved">0% this quarter</span>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
-                        <div class="stat-number" id="districtsCovered">13</div>
-                        <div class="stat-title">Districts Covered</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-title">Core Features</div>
+            <div class="section-subtitle">Comprehensive tools for environmental protection and water body management</div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bullhorn"></i>
                     </div>
+                    <h5>Encroachment Reporting</h5>
+                    <p>Easy-to-use interface for citizens to report water body encroachments with photos, location coordinates, and detailed descriptions for authorities</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h5>Interactive Mapping</h5>
+                    <p>Real-time interactive map showing all reported encroachment locations with color-coded status indicators for quick visualization</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5>Real-time Tracking</h5>
+                    <p>Monitor complaint status with live updates from submission to resolution. Track field inspections and actions taken</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-location-dot"></i>
+                    </div>
+                    <h5>GPS Location Tagging</h5>
+                    <p>Accurate GPS coordinates and address lookup for precise complaint location documentation and verification</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h5>Status Notifications</h5>
+                    <p>Real-time notifications to citizens and authorities about complaint updates, verifications, and resolutions</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h5>Authority Dashboard</h5>
+                    <p>Secure login for government officials to manage cases, assign inspections, update status, and track progress</p>
                 </div>
             </div>
         </div>
@@ -390,9 +677,26 @@
                 const response = await fetch('/api/complaints');
                 const complaints = await response.json();
 
-                document.getElementById('totalComplaints').textContent = complaints.length;
-                document.getElementById('activeComplaints').textContent = complaints.filter(c => c.status !== 'Resolved').length;
-                document.getElementById('resolvedComplaints').textContent = complaints.filter(c => c.status === 'Resolved').length;
+                const total = complaints.length;
+                const pending = complaints.filter(c => c.status === 'Pending').length;
+                const inProgress = complaints.filter(c => c.status === 'In Progress').length;
+                const resolved = complaints.filter(c => c.status === 'Resolved').length;
+
+                // Update hero stats
+                document.getElementById('heroTotal').textContent = total;
+                document.getElementById('heroPending').textContent = pending;
+                document.getElementById('heroProgress').textContent = inProgress;
+                document.getElementById('heroResolved').textContent = resolved;
+
+                // Update dashboard stats
+                document.getElementById('totalComplaints').textContent = total;
+                document.getElementById('activeComplaints').textContent = pending;
+                document.getElementById('inProgressComplaints').textContent = inProgress;
+                document.getElementById('resolvedComplaints').textContent = resolved;
+
+                // Update trends
+                document.getElementById('trendTotal').textContent = '↑ Updated now';
+                document.getElementById('trendResolved').textContent = resolved > 0 ? `✓ ${((resolved / total) * 100).toFixed(1)}% resolution rate` : '0% resolution rate';
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
@@ -404,65 +708,6 @@
         // Listen for real-time updates
         socket.on('newComplaint', loadStats);
         socket.on('statusUpdate', loadStats);
-    </script>
-                const response = await fetch('/api/complaints', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (response.ok) {
-                    alert('Complaint submitted successfully!');
-                    form.reset();
-                    // loadComplaints(); // Not needed since real-time
-                } else {
-                    alert('Error submitting complaint');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error submitting complaint');
-            }
-        });
-
-        // Load and display complaints
-        async function loadComplaints() {
-            try {
-                const response = await fetch('/api/complaints');
-                const complaints = await response.json();
-                complaintsList.innerHTML = '';
-                complaints.forEach(complaint => {
-                    addComplaintToList(complaint);
-                });
-            } catch (error) {
-                console.error('Error loading complaints:', error);
-            }
-        }
-
-        function addComplaintToList(complaint) {
-            const col = document.createElement('div');
-            col.className = 'col-md-6 mb-3';
-            col.setAttribute('data-id', complaint._id);
-            col.innerHTML = `
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">${complaint.title}</h5>
-                        <p class="card-text">${complaint.description || ''}</p>
-                        <p class="card-text"><small class="text-muted">District: ${complaint.district || ''} | Location: ${complaint.location || ''}</small></p>
-                        <p class="card-text"><small class="text-muted">Status: <span class="status-text">${complaint.status}</span> | Created: ${new Date(complaint.createdAt).toLocaleDateString()}</small></p>
-                        ${complaint.imageUrl ? `<img src="${complaint.imageUrl}" class="img-fluid mt-2" alt="Complaint Image">` : ''}
-                    </div>
-                </div>
-            `;
-            complaintsList.appendChild(col);
-        }
-
-        function updateComplaintStatus(id, status) {
-            const col = document.querySelector(`[data-id="${id}"]`);
-            if (col) {
-                const statusText = col.querySelector('.status-text');
-                if (statusText) {
-                    statusText.textContent = status;
-                }
-            }
-        }
     </script>
 </body>
 </html>
