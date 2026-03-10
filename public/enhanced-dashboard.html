@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TN-WBAMS Enhanced Admin Dashboard</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4caf50;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .panel h3 {
+            color: #333;
+            font-size: 16px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge-verified {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .badge-hazard {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-warning {
+            background: #fce4ec;
+            color: #880e4f;
+        }
+
+        .progress-bar {
+            display: flex;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .alert-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .alert-box.critical {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        .alert-box.success {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .complaint-item {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .complaint-item:hover {
+            background: #f9f9f9;
+            border-color: #667eea;
+        }
+
+        .complaint-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .complaint-meta {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .verification-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .verification-item {
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .verification-item-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .verification-item-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-label {
+            width: 120px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .chart-progress {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .chart-value {
+            width: 50px;
+            text-align: right;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .verification-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .connection-status {
+            display: inline-block;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 4px;
+            margin-left: 15px;
+        }
+
+        .connection-status.disconnected {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <span class="status-indicator"></span>
+                TN-WBAMS Enhanced Admin Dashboard
+            </h1>
+            <p>Real-time Monitoring, Verification & Analytics</p>
+            <div class="connection-status" id="connectionStatus">
+                <span>🟢 Connected</span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- AI Image Detection Panel -->
+            <div class="panel">
+                <h2>🤖 AI Image Detection</h2>
+                
+                <div class="metric">
+                    <span class="metric-label">Total Analyzed</span>
+                    <span class="metric-value" id="aiTotalAnalyzed">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Hazards Detected</span>
+                    <span class="metric-value" id="aiHazardDetected">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Avg Confidence</span>
+                    <span class="metric-value" id="aiAvgConfidence">0%</span>
+                </div>
+
+                <h3>Detection Categories</h3>
+                <div class="chart-container">
+                    <div class="chart-bar">
+                        <span class="chart-label">Garbage</span>
+                        <div class="chart-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%;"></div>
+                            </div>
+                        </div>
+                        <span class="chart-value">65%</span>
+                    </div>
+                    <div class="chart-bar">
+                        <span class="chart-label">Construction</span>
+                        <div class="chart-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        <span class="chart-value">45%</span>
+                    </div>
+                    <div class="chart-bar">
+                        <span class="chart-label">Pollution</span>
+                        <div class="chart-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 30%;"></div>
+                            </div>
+                        </div>
+                        <span class="chart-value">30%</span>
+                    </div>
+                </div>
+
+                <div class="alert-box success" style="margin-top: 15px;">
+                    ✓ AI model loaded and ready
+                </div>
+            </div>
+
+            <!-- Geolocation Verification Panel -->
+            <div class="panel">
+                <h2>📍 Geospatial Verification</h2>
+                
+                <div class="metric">
+                    <span class="metric-label">Water Bodies Protected</span>
+                    <span class="metric-value" id="waterBodiesCount">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Verified Locations</span>
+                    <span class="metric-value" id="verifiedLocations">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Verification Rate</span>
+                    <span class="metric-value" id="verificationRate">0%</span>
+                </div>
+
+                <h3>Protected Water Bodies</h3>
+                <div id="waterBodiesList" style="margin-top: 12px;">
+                    <span style="color: #999;">Loading water body boundaries...</span>
+                </div>
+
+                <div class="alert-box success" style="margin-top: 15px;">
+                    ✓ Geospatial indexes initialized
+                </div>
+            </div>
+
+            <!-- Crowd Verification Panel -->
+            <div class="panel">
+                <h2>👥 Crowd Verification</h2>
+                
+                <div class="metric">
+                    <span class="metric-label">Total Votes</span>
+                    <span class="metric-value" id="totalVotes">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Avg Credibility Score</span>
+                    <span class="metric-value" id="avgCredibility">0%</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Crowd Verified</span>
+                    <span class="metric-value" id="crowdVerified">0</span>
+                </div>
+
+                <h3>Voting Breakdown</h3>
+                <div class="chart-container">
+                    <div class="chart-bar">
+                        <span class="chart-label">Confirmed</span>
+                        <div class="chart-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 72%; background: #4caf50;"></div>
+                            </div>
+                        </div>
+                        <span class="chart-value">72%</span>
+                    </div>
+                    <div class="chart-bar">
+                        <span class="chart-label">Rejected</span>
+                        <div class="chart-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 28%; background: #f44336;"></div>
+                            </div>
+                        </div>
+                        <span class="chart-value">28%</span>
+                    </div>
+                </div>
+
+                <div class="alert-box" style="margin-top: 15px;">
+                    ℹ️ Credibility threshold: 0.7 (70% positive votes)
+                </div>
+            </div>
+
+            <!-- Satellite Monitoring Panel -->
+            <div class="panel">
+                <h2>🛰️ Satellite Change Detection</h2>
+                
+                <div class="metric">
+                    <span class="metric-label">Active Monitoring</span>
+                    <span class="metric-value" id="activeMonitoring">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Alerts Generated</span>
+                    <span class="metric-value" id="satelliteAlerts">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Last Check</span>
+                    <span class="metric-value" id="lastSatelliteCheck">-</span>
+                </div>
+
+                <h3>Recent Satellite Alerts</h3>
+                <div id="satelliteAlertsList" style="margin-top: 12px;">
+                    <span style="color: #999;">No alerts yet</span>
+                </div>
+
+                <div class="alert-box" style="margin-top: 15px;">
+                    ℹ️ Check interval: 24 hours | Change threshold: 10%
+                </div>
+            </div>
+
+            <!-- System Statistics Panel -->
+            <div class="panel">
+                <h2>📊 System Statistics</h2>
+                
+                <div class="metric">
+                    <span class="metric-label">Total Complaints</span>
+                    <span class="metric-value" id="totalComplaints">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Fully Verified</span>
+                    <span class="metric-value" id="fullyVerified">0</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Pending Review</span>
+                    <span class="metric-value" id="pendingReview">0</span>
+                </div>
+
+                <h3>Verification Distribution</h3>
+                <div class="verification-grid">
+                    <div class="verification-item">
+                        <div class="verification-item-label">AI Verified</div>
+                        <div class="verification-item-value" id="aiVerified">0%</div>
+                    </div>
+                    <div class="verification-item">
+                        <div class="verification-item-label">Location Verified</div>
+                        <div class="verification-item-value" id="locVerified">0%</div>
+                    </div>
+                    <div class="verification-item">
+                        <div class="verification-item-label">Crowd Verified</div>
+                        <div class="verification-item-value" id="crowdVerScore">0%</div>
+                    </div>
+                    <div class="verification-item">
+                        <div class="verification-item-label">Satellite Alert</div>
+                        <div class="verification-item-value" id="satAlert">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Events Panel -->
+            <div class="panel">
+                <h2>🔔 Real-Time Events</h2>
+                <div id="realtimeEvents" style="max-height: 300px; overflow-y: auto;">
+                    <span style="color: #999;">Waiting for events...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>TN-WBAMS Enhanced Admin Dashboard | Real-time Updates via Socket.IO</p>
+        <p>AI Image Verification • Geospatial Boundary Detection • Crowd Verification • Satellite Monitoring</p>
+    </footer>
+
+    <script>
+        // Connect to Socket.IO server
+        const socket = io('http://localhost:5000');
+
+        // Connection event handlers
+        socket.on('connected', (data) => {
+            console.log('Connected:', data);
+            updateConnectionStatus(true);
+            loadDashboardData();
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected');
+            updateConnectionStatus(false);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            updateConnectionStatus(false);
+        });
+
+        // Real-time event listeners
+        socket.on('newComplaint', (complaint) => {
+            console.log('New complaint:', complaint);
+            addRealtimeEvent('📝 New complaint submitted', complaint.title);
+            updateStatistics();
+        });
+
+        socket.on('aiDetectionComplete', (data) => {
+            console.log('AI detection complete:', data);
+            addRealtimeEvent('🤖 AI Analysis complete', `Labels: ${data.labels.join(', ')}`);
+            updateAIStatistics(data);
+        });
+
+        socket.on('locationVerified', (data) => {
+            console.log('Location verified:', data);
+            if (data.verified) {
+                addRealtimeEvent('✓ Location verified', `Water body: ${data.waterBodyName}`);
+            } else {
+                addRealtimeEvent('✗ Location not verified', 'Outside protected boundaries');
+            }
+            updateLocationStatistics();
+        });
+
+        socket.on('verificationUpdatedBroadcast', (data) => {
+            console.log('Verification updated:', data);
+            addRealtimeEvent('👥 Crowd verification updated', `Score: ${data.credibilityScore?.toFixed(2) || 'N/A'}`);
+            updateCrowdStatistics();
+        });
+
+        socket.on('statusUpdate', (data) => {
+            console.log('Status updated:', data);
+            addRealtimeEvent('🔄 Status changed', `New status: ${data.status}`);
+        });
+
+        // Helper functions
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.innerHTML = '<span>🟢 Connected</span>';
+                status.classList.remove('disconnected');
+            } else {
+                status.innerHTML = '<span>🔴 Disconnected</span>';
+                status.classList.add('disconnected');
+            }
+        }
+
+        function addRealtimeEvent(title, description) {
+            const eventsList = document.getElementById('realtimeEvents');
+            if (eventsList.children[0]?.textContent.includes('Waiting')) {
+                eventsList.innerHTML = '';
+            }
+
+            const eventItem = document.createElement('div');
+            eventItem.style.cssText = 'padding: 10px; border-bottom: 1px solid #eee; font-size: 13px;';
+            eventItem.innerHTML = `
+                <strong>${title}</strong>
+                <div style="color: #999; font-size: 12px;">${description}</div>
+                <div style="color: #999; font-size: 11px;">${new Date().toLocaleTimeString()}</div>
+            `;
+            eventsList.insertBefore(eventItem, eventsList.firstChild);
+
+            // Keep only last 10 events
+            while (eventsList.children.length > 10) {
+                eventsList.removeChild(eventsList.lastChild);
+            }
+        }
+
+        function updateAIStatistics(data) {
+            document.getElementById('aiTotalAnalyzed').textContent = 
+                (parseInt(document.getElementById('aiTotalAnalyzed').textContent) + 1);
+            
+            if (data.environmentalHazardDetected) {
+                document.getElementById('aiHazardDetected').textContent = 
+                    (parseInt(document.getElementById('aiHazardDetected').textContent) + 1);
+            }
+        }
+
+        function updateLocationStatistics() {
+            document.getElementById('verifiedLocations').textContent = 
+                (parseInt(document.getElementById('verifiedLocations').textContent) + 1);
+        }
+
+        function updateCrowdStatistics() {
+            document.getElementById('totalVotes').textContent = 
+                (parseInt(document.getElementById('totalVotes').textContent) + 1);
+        }
+
+        function updateStatistics() {
+            document.getElementById('totalComplaints').textContent = 
+                (parseInt(document.getElementById('totalComplaints').textContent) + 1);
+        }
+
+        function loadDashboardData() {
+            // Load initial dashboard data from backend
+            console.log('Loading dashboard data...');
+            // This would typically fetch from API endpoints
+        }
+
+        // Initialize dashboard
+        console.log('Dashboard loaded');
+    </script>
+</body>
+</html>

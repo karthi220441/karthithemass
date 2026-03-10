@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Complaint Submission Form</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .location-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .location-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .location-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .location-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .location-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .image-section {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-section:hover {
+            background: #f0f0f0;
+            border-color: #5568d3;
+        }
+
+        .image-section.dragover {
+            background: #e8e8ff;
+            border-color: #667eea;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .image-preview {
+            margin-top: 20px;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .analysis-results {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .analysis-results.show {
+            display: block;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-value {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge.high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge.medium {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+            animation: slideIn 0.3s ease-in;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        .status-message.error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+        }
+
+        .status-message.processing {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #1565c0;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .verification-info {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .verification-info strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            animation: loading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 100%; }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #667eea;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .form-section {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .submission-summary {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-value {
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+            }
+
+            .location-info {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>🌍 Report Environmental Complaint</h1>
+            <p class="subtitle">Submit with AI verification, geolocation, and community review</p>
+
+            <!-- Status Messages -->
+            <div id="statusMessage" class="status-message"></div>
+
+            <form id="complaintForm">
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="section-title">📝 Complaint Details</div>
+                    
+                    <div class="form-group">
+                        <label for="title">Complaint Title *</label>
+                        <input type="text" id="title" name="title" placeholder="e.g., Garbage dumping in river" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Detailed Description *</label>
+                        <textarea id="description" name="description" placeholder="Describe the environmental issue in detail..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="district">District *</label>
+                        <select id="district" name="district" required>
+                            <option value="">Select District</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Tiruvallur">Tiruvallur</option>
+                            <option value="Chengalpattu">Chengalpattu</option>
+                            <option value="Kanchipuram">Kanchipuram</option>
+                            <option value="Cuddalore">Cuddalore</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Location Section with Geospatial Verification -->
+                <div class="form-section">
+                    <div class="section-title">📍 Location Information</div>
+                    
+                    <div class="verification-info">
+                        <strong>🔍 Geospatial Verification:</strong> Your location will be checked against protected water body boundaries to determine if this complaint is in a critical area.
+                    </div>
+
+                    <div class="location-section">
+                        <div class="btn-group">
+                            <button type="button" class="btn-primary" id="getLocationBtn">
+                                📡 Get Current Location
+                            </button>
+                            <button type="button" class="btn-secondary" id="clearLocationBtn">
+                                Clear Location
+                            </button>
+                        </div>
+
+                        <div class="location-info">
+                            <div class="location-item">
+                                <div class="location-label">Latitude</div>
+                                <div class="location-value" id="latitudeValue">Not set</div>
+                            </div>
+                            <div class="location-item">
+                                <div class="location-label">Longitude</div>
+                                <div class="location-value" id="longitudeValue">Not set</div>
+                            </div>
+                        </div>
+
+                        <div id="locationVerificationResult" style="display: none; margin-top: 15px;">
+                            <div style="padding: 12px; background: white; border-radius: 6px; border-left: 4px solid #4caf50;">
+                                <strong>✓ Location Verified:</strong> <span id="waterBodyName"></span>
+                                <div class="progress-bar" style="margin-top: 8px;">
+                                    <div class="progress-fill" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address / Location Description</label>
+                        <input type="text" id="address" name="address" placeholder="e.g., Near Cooum River Bridge, Chennai">
+                    </div>
+                </div>
+
+                <!-- Image Upload Section with AI Analysis -->
+                <div class="form-section">
+                    <div class="section-title">🖼️ Upload Evidence Image</div>
+                    
+                    <div class="verification-info">
+                        <strong>🤖 AI Analysis:</strong> Your image will be automatically analyzed to detect environmental hazards (garbage, construction, pollution) using advanced machine learning.
+                    </div>
+
+                    <div class="image-section" id="imageDropzone">
+                        <div>
+                            <div style="font-size: 48px; margin-bottom: 10px;">📸</div>
+                            <p><strong>Click to upload or drag image here</strong></p>
+                            <p style="color: #999; font-size: 12px; margin-top: 10px;">PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*">
+                    </div>
+
+                    <div class="image-preview" id="imagePreview"></div>
+
+                    <!-- AI Analysis Results -->
+                    <div id="analysisResults" class="analysis-results">
+                        <div class="result-item">
+                            <div class="result-title">
+                                <span class="loading-spinner" id="analysisSpinner" style="display: none;"></span>
+                                <span id="analysisStatus">Analyzing image...</span>
+                            </div>
+                            <div class="progress-bar" id="analysisProgress">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+
+                        <div id="detectionResults" style="display: none;">
+                            <div class="result-item">
+                                <div class="result-title">🎯 Detected Hazards</div>
+                                <div id="detectedLabels"></div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-title">📊 Confidence Score</div>
+                                <div class="result-value">
+                                    <strong id="confidenceScore">0%</strong> - Confidence in detections
+                                </div>
+                                <div class="progress-bar" style="margin-top: 8px;">
+                                    <div class="progress-fill" id="confidenceBar" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-title">✓ Verification Status</div>
+                                <div class="result-value">
+                                    <span id="verificationStatus"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crowd Verification Info -->
+                <div class="form-section">
+                    <div class="section-title">👥 Community Verification</div>
+                    
+                    <div class="verification-info">
+                        <strong>🗳️ Crowdsourced Verification:</strong> After you submit, community members can vote to verify your complaint. A credibility score of 70%+ confirms the complaint.
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="allowCrowd" name="allowCrowd" checked>
+                        <label for="allowCrowd" style="margin: 0;">Allow community members to verify this complaint</label>
+                    </div>
+                </div>
+
+                <!-- Submission Summary -->
+                <div class="submission-summary" id="submissionSummary" style="display: none;">
+                    <div class="summary-item">
+                        <span class="summary-label">AI Analysis:</span>
+                        <span class="summary-value" id="summaryAI">Pending</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Location Verification:</span>
+                        <span class="summary-value" id="summaryLocation">Not verified</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Verification Method:</span>
+                        <span class="summary-value">Multi-stage (AI + Crowd + Satellite)</span>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
+                    ✓ Submit Complaint with Verification
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Socket.IO Instance
+         * Connects to server for real-time updates
+         */
+        const socket = io('http://localhost:5000');
+
+        /**
+         * Listen for real-time verification updates
+         */
+        socket.on('aiDetectionComplete', (data) => {
+            console.log('AI Detection Result:', data);
+            showStatusMessage(`✓ AI Detection Complete: ${data.labels.join(', ')}`, 'success');
+        });
+
+        socket.on('locationVerified', (data) => {
+            console.log('Location Verified:', data);
+            if (data.verified) {
+                showStatusMessage(`✓ Location verified in ${data.waterBodyName}!`, 'success');
+            }
+        });
+
+        /**
+         * Form Data Storage
+         */
+        let formData = {
+            latitude: null,
+            longitude: null,
+            imageFile: null,
+            aiAnalysis: null
+        };
+
+        /**
+         * Get Current Location
+         * Uses Geolocation API to capture GPS coordinates
+         */
+        document.getElementById('getLocationBtn').addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                showStatusMessage('Geolocation not supported by your browser', 'error');
+                return;
+            }
+
+            showStatusMessage('📡 Getting your location...', 'processing');
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    formData.latitude = position.coords.latitude;
+                    formData.longitude = position.coords.longitude;
+
+                    // Update UI
+                    document.getElementById('latitudeValue').textContent = 
+                        formData.latitude.toFixed(4);
+                    document.getElementById('longitudeValue').textContent = 
+                        formData.longitude.toFixed(4);
+
+                    showStatusMessage('✓ Location captured successfully!', 'success');
+
+                    // Show submission summary
+                    document.getElementById('submissionSummary').style.display = 'block';
+                    document.getElementById('summaryLocation').textContent = 
+                        `${formData.latitude.toFixed(4)}, ${formData.longitude.toFixed(4)}`;
+
+                    // Simulate geospatial verification (real verification happens on server)
+                    verifyGeolocation(formData.latitude, formData.longitude);
+                },
+                (error) => {
+                    let message = 'Could not get location: ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            message += 'Permission denied. Please enable location access.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            message += 'Location request timed out.';
+                            break;
+                    }
+                    showStatusMessage(message, 'error');
+                }
+            );
+        });
+
+        /**
+         * Clear Location
+         */
+        document.getElementById('clearLocationBtn').addEventListener('click', function() {
+            formData.latitude = null;
+            formData.longitude = null;
+            document.getElementById('latitudeValue').textContent = 'Not set';
+            document.getElementById('longitudeValue').textContent = 'Not set';
+            document.getElementById('locationVerificationResult').style.display = 'none';
+            showStatusMessage('Location cleared', 'processing');
+        });
+
+        /**
+         * Verify Location Against Water Bodies
+         * Simulates geospatial verification
+         */
+        function verifyGeolocation(lat, lng) {
+            // These are sample coordinates for Cooum River
+            const cooumLatMin = 13.0, cooumLatMax = 13.08;
+            const cooumLngMin = 80.2, cooumLngMax = 80.25;
+
+            if (lat >= cooumLatMin && lat <= cooumLatMax && 
+                lng >= cooumLngMin && lng <= cooumLngMax) {
+                
+                document.getElementById('locationVerificationResult').style.display = 'block';
+                document.getElementById('waterBodyName').textContent = 'Cooum River, Chennai';
+                document.getElementById('summaryLocation').textContent = 
+                    '✓ Within Protected Water Body';
+                document.getElementById('summaryLocation').style.color = '#4caf50';
+            }
+        }
+
+        /**
+         * Image Upload and AI Analysis
+         */
+        const imageDropzone = document.getElementById('imageDropzone');
+        const imageInput = document.getElementById('imageInput');
+
+        // Click to upload
+        imageDropzone.addEventListener('click', () => imageInput.click());
+
+        // Drag and drop
+        imageDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageDropzone.classList.add('dragover');
+        });
+
+        imageDropzone.addEventListener('dragleave', () => {
+            imageDropzone.classList.remove('dragover');
+        });
+
+        imageDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageDropzone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageUpload(files[0]);
+            }
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        /**
+         * Handle Image Upload and Analysis
+         */
+        function handleImageUpload(file) {
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                showStatusMessage('Please upload an image file', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showStatusMessage('Image size must be less than 10MB', 'error');
+                return;
+            }
+
+            formData.imageFile = file;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                
+                // Show analysis results
+                document.getElementById('analysisResults').classList.add('show');
+                document.getElementById('submissionSummary').style.display = 'block';
+
+                // Trigger AI analysis
+                analyzeImage(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Simulate AI Image Analysis
+         * In production, this is done server-side via TensorFlow
+         */
+        function analyzeImage(imageData) {
+            showStatusMessage('🤖 Analyzing image with AI...', 'processing');
+
+            document.getElementById('analysisResults').classList.add('show');
+            document.getElementById('analysisSpinner').style.display = 'inline-block';
+            document.getElementById('analysisStatus').textContent = 'Analyzing image...';
+
+            // Simulate analysis delay
+            setTimeout(() => {
+                // Mock AI results (server will provide real results)
+                const mockResults = {
+                    labels: ['garbage', 'construction'],
+                    confidenceScore: 0.87,
+                    detections: 2,
+                    environmentalHazardDetected: true
+                };
+
+                displayAnalysisResults(mockResults);
+                formData.aiAnalysis = mockResults;
+                document.getElementById('summaryAI').textContent = 
+                    `✓ ${mockResults.labels.join(', ')} (${(mockResults.confidenceScore * 100).toFixed(0)}%)`;
+            }, 2000);
+        }
+
+        /**
+         * Display AI Analysis Results
+         */
+        function displayAnalysisResults(results) {
+            document.getElementById('analysisSpinner').style.display = 'none';
+            document.getElementById('analysisStatus').textContent = '✓ Analysis Complete';
+            document.getElementById('detectionResults').style.display = 'block';
+
+            // Display detected labels
+            const labelsHtml = results.labels
+                .map(label => {
+                    const badgeClass = results.confidenceScore > 0.85 ? 'high' : 
+                                       results.confidenceScore > 0.7 ? 'medium' : '';
+                    return `<span class="badge ${badgeClass}">${label}</span>`;
+                })
+                .join('');
+            document.getElementById('detectedLabels').innerHTML = labelsHtml || 'No hazards detected';
+
+            // Display confidence score
+            const confidencePercent = (results.confidenceScore * 100).toFixed(0);
+            document.getElementById('confidenceScore').textContent = `${confidencePercent}%`;
+            document.getElementById('confidenceBar').style.width = `${confidencePercent}%`;
+
+            // Display verification status
+            const status = results.environmentalHazardDetected 
+                ? '⚠️ Environmental hazard detected - requires attention'
+                : '✓ No environmental hazards detected';
+            document.getElementById('verificationStatus').textContent = status;
+
+            showStatusMessage('✓ AI analysis complete! Ready to submit.', 'success');
+        }
+
+        /**
+         * Form Submission
+         */
+        document.getElementById('complaintForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate required fields
+            if (!document.getElementById('title').value) {
+                showStatusMessage('Please enter complaint title', 'error');
+                return;
+            }
+
+            if (!formData.latitude || !formData.longitude) {
+                showStatusMessage('Please capture location', 'error');
+                return;
+            }
+
+            // Create FormData for file upload
+            const submitFormData = new FormData();
+            submitFormData.append('title', document.getElementById('title').value);
+            submitFormData.append('description', document.getElementById('description').value);
+            submitFormData.append('district', document.getElementById('district').value);
+            submitFormData.append('address', document.getElementById('address').value);
+            submitFormData.append('latitude', formData.latitude);
+            submitFormData.append('longitude', formData.longitude);
+
+            if (formData.imageFile) {
+                submitFormData.append('image', formData.imageFile);
+            }
+
+            showStatusMessage('📤 Submitting complaint...', 'processing');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/complaints', {
+                    method: 'POST',
+                    body: submitFormData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatusMessage(
+                        `✓ Complaint submitted successfully! ID: ${result._id}`,
+                        'success'
+                    );
+
+                    // Show complaint ID
+                    alert(`Your complaint has been submitted!\n\nComplaint ID: ${result._id}\n\nYour complaint is now undergoing:\n✓ AI Image Analysis\n✓ Geospatial Verification\n✓ Community Voting\n✓ Satellite Monitoring\n\nYou can track its status on the dashboard.`);
+
+                    // Reset form
+                    setTimeout(() => {
+                        document.getElementById('complaintForm').reset();
+                        document.getElementById('imagePreview').innerHTML = '';
+                        document.getElementById('analysisResults').classList.remove('show');
+                        document.getElementById('locationVerificationResult').style.display = 'none';
+                        document.getElementById('submissionSummary').style.display = 'none';
+                        formData = { latitude: null, longitude: null, imageFile: null, aiAnalysis: null };
+                    }, 2000);
+
+                } else {
+                    showStatusMessage(`Error: ${result.message || 'Submission failed'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showStatusMessage('Error submitting complaint. Please try again.', 'error');
+            }
+        });
+
+        /**
+         * Show Status Message
+         */
+        function showStatusMessage(message, type) {
+            const messageEl = document.getElementById('statusMessage');
+            messageEl.className = `status-message show ${type}`;
+            messageEl.textContent = message;
+
+            if (type !== 'processing') {
+                setTimeout(() => {
+                    messageEl.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        /**
+         * Initialize
+         */
+        console.log('Enhanced complaint form loaded');
+        console.log('Features enabled:');
+        console.log('✓ AI Image Analysis');
+        console.log('✓ Geospatial Verification');
+        console.log('✓ Community Voting');
+        console.log('✓ Real-time Socket.IO');
+    </script>
+</body>
+</html>
